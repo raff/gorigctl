@@ -186,34 +186,34 @@ func mqttRadioServer(cmd *cobra.Command, args []string) {
 	port.Databits = viper.GetInt("radio.databits")
 	port.Stopbits = viper.GetInt("radio.stopbits")
 	port.Portname = viper.GetString("radio.portname")
-	port.RigPortType = hl.RIG_PORT_SERIAL
+	port.RigPortType = hl.RigPortSerial
 	switch viper.GetString("radio.parity") {
 	case "none":
-		port.Parity = hl.N
+		port.Parity = hl.ParityNone
 	case "even":
-		port.Parity = hl.E
+		port.Parity = hl.ParityEven
 	case "odd":
-		port.Parity = hl.O
+		port.Parity = hl.ParityOdd
 	default:
-		port.Parity = hl.N
+		port.Parity = hl.ParityNone
 	}
 
 	switch viper.GetString("radio.handshake") {
 	case "none":
-		port.Handshake = hl.NO_HANDSHAKE
+		port.Handshake = hl.HandshakeNone
 	case "RTSCTS":
-		port.Handshake = hl.RTSCTS_HANDSHAKE
+		port.Handshake = hl.HandshakeRTSCTS
 	default:
-		port.Handshake = hl.NO_HANDSHAKE
+		port.Handshake = hl.HandshakeNone
 	}
 
 	pollingInterval := viper.GetDuration("radio.polling-interval")
 	syncInterval := viper.GetDuration("radio.sync-interval")
 
 	radioSettings := server.RadioSettings{
-		RigModel:         rigModel,
+		RigModel:         hl.RigModelID(rigModel),
 		Port:             port,
-		HlDebugLevel:     hlDebugLevel,
+		HlDebugLevel:     hl.DebugLevel(hlDebugLevel),
 		CatRequestCh:     toDeserializeCatRequestCh,
 		CapsReqCh:        toDeserializeCapsReqCh,
 		ToWireCh:         toWireCh,

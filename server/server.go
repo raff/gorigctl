@@ -15,9 +15,9 @@ import (
 )
 
 type RadioSettings struct {
-	RigModel         int
+	RigModel         hl.RigModelID
 	Port             hl.Port
-	HlDebugLevel     int
+	HlDebugLevel     hl.DebugLevel
 	CatRequestCh     chan []byte
 	CapsReqCh        chan []byte
 	ToWireCh         chan comms.IOMsg
@@ -66,7 +66,7 @@ func StartRadioServer(rs RadioSettings) {
 	r.state.PollingInterval = int32(r.settings.PollingInterval.Nanoseconds() / 1000000)
 	r.state.SyncInterval = int32(r.settings.SyncInterval.Seconds())
 
-	r.rig.SetDebugLevel(rs.HlDebugLevel)
+	hl.SetDebugLevel(rs.HlDebugLevel)
 
 	err := r.rig.Init(rs.RigModel)
 	if err != nil {
@@ -167,12 +167,12 @@ func StartRadioServer(rs RadioSettings) {
 func (r *localRadio) queryVfo() error {
 
 	if r.rig.Caps.HasGetPowerStat {
-		if pwrOn, err := r.rig.GetPowerStat(); err != nil {
+		if pwrOn, err := r.rig.GetPowerState(); err != nil {
 			r.radioLogger.Println(err)
 			// if the radio doesn't respond, lets assume that the radio if off
 			r.state.RadioOn = false
 		} else {
-			if pwrOn == hl.RIG_POWER_ON {
+			if pwrOn == hl.PowerOn {
 				r.state.RadioOn = true
 			} else {
 				r.state.RadioOn = false
@@ -189,14 +189,14 @@ func (r *localRadio) queryVfo() error {
 	// in this case we will assume that the radio is turned on
 	if (r.rig.Caps.HasGetPowerStat && r.state.RadioOn) || !r.rig.Caps.HasGetPowerStat {
 
-		vfo := hl.VfoValue["CURR"]
+		vfo := hl.VFOValue["CURR"]
 
 		if r.rig.Caps.HasGetVfo {
 			vfo, err := r.rig.GetVfo()
 			if err != nil {
 				r.radioLogger.Print(err)
 			} else {
-				r.state.CurrentVfo = hl.VfoName[vfo]
+				r.state.CurrentVfo = hl.VFOName[vfo]
 			}
 		} else {
 			r.state.CurrentVfo = "CURR"
@@ -264,7 +264,7 @@ func (r *localRadio) queryVfo() error {
 				} else {
 					split.Enabled = false
 				}
-				if txVfoName, ok := hl.VfoName[txVfo]; ok {
+				if txVfoName, ok := hl.VFOName[txVfo]; ok {
 					split.Vfo = txVfoName
 				} else {
 					return errors.New("unknown Vfo Name")
@@ -390,7 +390,7 @@ func (r *localRadio) updateMeter() error {
 		return nil
 	}
 
-	vfo := hl.VfoValue[r.state.CurrentVfo]
+	vfo := hl.VFOValue[r.state.CurrentVfo]
 	newValueAvailable := false
 
 	if r.rig.Caps.HasGetPtt && r.state.Ptt {

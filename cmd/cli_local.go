@@ -69,30 +69,30 @@ func runLocalCli(cmd *cobra.Command, args []string) {
 	port.Databits = viper.GetInt("radio.databits")
 	port.Stopbits = viper.GetInt("radio.stopbits")
 	port.Portname = viper.GetString("radio.portname")
-	port.RigPortType = hl.RIG_PORT_SERIAL
+	port.RigPortType = hl.RigPortSerial
 	switch viper.GetString("radio.parity") {
 	case "none":
-		port.Parity = hl.N
+		port.Parity = hl.ParityNone
 	case "even":
-		port.Parity = hl.E
+		port.Parity = hl.ParityEven
 	case "odd":
-		port.Parity = hl.O
+		port.Parity = hl.ParityOdd
 	default:
-		port.Parity = hl.N
+		port.Parity = hl.ParityNone
 	}
 
 	switch viper.GetString("radio.handshake") {
 	case "none":
-		port.Handshake = hl.NO_HANDSHAKE
+		port.Handshake = hl.HandshakeNone
 	case "RTSCTS":
-		port.Handshake = hl.RTSCTS_HANDSHAKE
+		port.Handshake = hl.HandshakeRTSCTS
 	default:
-		port.Handshake = hl.NO_HANDSHAKE
+		port.Handshake = hl.HandshakeNone
 	}
 
 	logger := utils.NewStdLogger("", 0)
 
-	lr, err := localradio.NewLocalRadio(rigModel, debugLevel, port, logger)
+	lr, err := localradio.NewLocalRadio(hl.RigModelID(rigModel), hl.DebugLevel(debugLevel), port, logger)
 	if err != nil {
 		fmt.Println("Unable to initialize radio:", err)
 		os.Exit(-1)

@@ -66,7 +66,7 @@ func StartRadioServer(rs RadioSettings) {
 	r.state.PollingInterval = int32(r.settings.PollingInterval.Nanoseconds() / 1000000)
 	r.state.SyncInterval = int32(r.settings.SyncInterval.Seconds())
 
-	r.rig.SetDebugLevel(rs.HlDebugLevel)
+	hl.SetDebugLevel(rs.HlDebugLevel)
 
 	err := r.rig.Init(rs.RigModel)
 	if err != nil {

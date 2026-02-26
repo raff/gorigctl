@@ -94,7 +94,7 @@ func (r *LocalRadio) GetVfo() (string, error) {
 		return "", err
 	}
 
-	vfo, ok := hl.VfoName[v]
+	vfo, ok := hl.VFOName[v]
 	if !ok {
 		return "", errors.New("unknown vfo")
 	}
@@ -103,7 +103,7 @@ func (r *LocalRadio) GetVfo() (string, error) {
 }
 
 func (r *LocalRadio) SetVfo(vfo string) error {
-	v, ok := hl.VfoValue[vfo]
+	v, ok := hl.VFOValue[vfo]
 	if !ok {
 		return errors.New("unknown vfo")
 	}
@@ -186,28 +186,28 @@ func (r *LocalRadio) SetTuningStep(ts int) error {
 }
 
 func (r *LocalRadio) GetPowerstat() (bool, error) {
-	ps, err := r.rig.GetPowerStat()
+	ps, err := r.rig.GetPowerState()
 	if err != nil {
 		return false, err
 	}
-	if ps == hl.RIG_POWER_ON {
+	if ps == hl.PowerOn {
 		return true, nil
 	}
 	return false, nil
 }
 
 func (r *LocalRadio) SetPowerstat(ps bool) error {
-	p := hl.RIG_POWER_OFF
+	p := hl.PowerOff
 	if ps {
-		p = hl.RIG_POWER_ON
+		p = hl.PowerOn
 	}
 
-	return r.rig.SetPowerStat(p)
+	return r.rig.SetPowerState(p)
 }
 
 func (r *LocalRadio) ExecVfoOps(ops []string) error {
 	for op := range ops {
-		err := r.rig.VfoOp(r.vfo, op)
+		err := r.rig.VfoOp(r.vfo, hl.VFOOp(op))
 		if err != nil {
 			return err
 		}
@@ -225,7 +225,7 @@ func (r *LocalRadio) GetSplitVfo() (string, bool, error) {
 		enabled = true
 	}
 
-	vfo, ok := hl.VfoName[v]
+	vfo, ok := hl.VFOName[v]
 	if !ok {
 		return "", false, errors.New("unknown vfo")
 	}
@@ -234,7 +234,7 @@ func (r *LocalRadio) GetSplitVfo() (string, bool, error) {
 }
 
 func (r *LocalRadio) SetSplitVfo(vfo string, enabled bool) error {
-	v, ok := hl.VfoValue[vfo]
+	v, ok := hl.VFOValue[vfo]
 	if !ok {
 		return errors.New("unknown vfo")
 	}
@@ -412,11 +412,11 @@ func (r *LocalRadio) queryVfo() (sbRadio.State, error) {
 	state.Channel = &sbRadio.Channel{}
 
 	if r.rig.Caps.HasGetPowerStat {
-		pwrOn, err := r.rig.GetPowerStat()
+		pwrOn, err := r.rig.GetPowerState()
 		if err != nil {
 			return state, err
 		}
-		if pwrOn == hl.RIG_POWER_ON {
+		if pwrOn == hl.PowerOn {
 			state.RadioOn = true
 		} else {
 			state.RadioOn = false
@@ -427,7 +427,7 @@ func (r *LocalRadio) queryVfo() (sbRadio.State, error) {
 	// in this case we will assume that the radio is turned on
 	if (r.rig.Caps.HasGetPowerStat && state.RadioOn) || !r.rig.Caps.HasGetPowerStat {
 
-		vfo := hl.VfoValue["CURR"]
+		vfo := hl.VFOValue["CURR"]
 
 		if r.rig.Caps.HasGetVfo {
 			vfo, err := r.GetVfo()

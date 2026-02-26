@@ -9,16 +9,16 @@ import (
 type LocalRadio struct {
 	rig hl.Rig
 	log *log.Logger
-	vfo int
+	vfo hl.VFOType
 }
 
-func NewLocalRadio(rigModel, debugLevel int, port hl.Port, log *log.Logger) (*LocalRadio, error) {
+func NewLocalRadio(rigModel hl.RigModelID, debugLevel hl.DebugLevel, port hl.Port, log *log.Logger) (*LocalRadio, error) {
 	lr := LocalRadio{}
 	lr.rig = hl.Rig{}
 	lr.log = log
-	lr.vfo = hl.RIG_VFO_CURR
+	lr.vfo = hl.VFOCurrent
 
-	lr.rig.SetDebugLevel(debugLevel)
+	hl.SetDebugLevel(debugLevel)
 
 	if err := lr.rig.Init(rigModel); err != nil {
 		return nil, err
