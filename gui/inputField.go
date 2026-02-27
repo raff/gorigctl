@@ -177,6 +177,10 @@ func (i *Input) Clear() {
 // TODO: handle delete key
 
 func (i *Input) backspace() {
+	if i.cursorLineIndex >= len(i.lines) {
+		return
+	}
+
 	curLine := i.lines[i.cursorLineIndex]
 	// at the beginning of the buffer, nothing to do
 	if len(curLine) == 0 && i.cursorLineIndex == 0 {
@@ -316,6 +320,10 @@ func (i *Input) moveLeft() {
 }
 
 func (i *Input) moveRight() {
+	if i.cursorLineIndex >= len(i.lines) {
+		return
+	}
+
 	// if we are at the end of the line move to the next
 	if i.cursorLinePos >= len(i.lines[i.cursorLineIndex]) {
 		origLine := i.cursorLineIndex
@@ -442,9 +450,14 @@ func (i *Input) getCharString(s string) string {
 }
 
 func (i *Input) getInputEvt(key string) EvtInput {
+	lineText := ""
+	if i.cursorLineIndex < len(i.lines) {
+		lineText = i.lines[i.cursorLineIndex]
+	}
+
 	return EvtInput{
 		KeyStr:         key,
-		LineText:       i.lines[i.cursorLineIndex],
+		LineText:       lineText,
 		CursorPosition: i.cursorLinePos,
 		LineIndex:      i.cursorLineIndex,
 	}
